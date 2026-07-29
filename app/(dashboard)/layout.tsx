@@ -13,15 +13,16 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   return (
     <div className="min-h-screen bg-muted/30">
+      <div className="fixed inset-0 mesh-gradient pointer-events-none opacity-40" />
       <Sidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
-      <div className={`transition-all duration-300 ${collapsed ? "ml-[68px]" : "ml-64"}`}>
+      <div className={`relative transition-all duration-300 ease-out ${collapsed ? "ml-[72px]" : "ml-64"}`}>
         <div className="hidden lg:block">
           <Navbar />
         </div>
         <div className="lg:hidden">
           <Navbar onMenuClick={() => setMobileOpen(!mobileOpen)} />
         </div>
-        <main className="p-4 lg:p-6">{children}</main>
+        <main className="p-5 lg:p-8">{children}</main>
       </div>
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
     </div>

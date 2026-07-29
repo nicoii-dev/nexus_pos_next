@@ -9,7 +9,8 @@ interface ChartCardProps {
 
 export function ChartCard({ title, description, children, action }: ChartCardProps) {
   return (
-    <div className="rounded-xl border bg-card shadow-sm">
+    <div className="group relative overflow-hidden rounded-2xl border bg-card shadow-float transition-all duration-300 card-hover">
+      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
       <div className="flex items-center justify-between p-6 pb-2">
         <PageHeader title={title} description={description} />
         {action}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { PageHeader } from "@/components/page-header";
 import { StatusBadge } from "@/components/status-badge";
 import { LoadingSkeleton } from "@/components/loading-skeleton";
@@ -16,15 +16,17 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Pencil, Trash2, Download, ChevronLeft, ChevronRight } from "lucide-react";
-import { getProducts, createProduct, updateProduct, deleteProduct } from "@/services/products";
+import { useGetProducts, useCreateProduct, useUpdateProduct, useDeleteProduct } from "@/services/products";
 import { CATEGORIES, UNITS } from "@/constants";
 import type { Product } from "@/types";
 
 const PAGE_SIZE = 8;
 
 export default function ProductsPage() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: products = [], isLoading } = useGetProducts();
+  const createProduct = useCreateProduct();
+  const updateProduct = useUpdateProduct();
+  const deleteProduct = useDeleteProduct();
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
@@ -34,10 +36,6 @@ export default function ProductsPage() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
   const [form, setForm] = useState({ name: "", sku: "", barcode: "", description: "", categoryId: "", buyingPrice: 0, sellingPrice: 0, currentStock: 0, minimumStock: 0, unit: "pcs", image: "" });
-
-  useEffect(() => {
-    getProducts().then((p) => { setProducts(p); setLoading(false); });
-  }, []);
 
   const filtered = useMemo(() => {
     return products.filter((p) => {
@@ -65,45 +63,41 @@ export default function ProductsPage() {
 
   const handleSave = async () => {
     if (editingProduct) {
-      await updateProduct(editingProduct.id, form);
+      await updateProduct.mutateAsync({ id: editingProduct.id, data: form });
     } else {
-      await createProduct(form);
+      await createProduct.mutateAsync(form);
     }
-    const updated = await getProducts();
-    setProducts(updated);
     setDialogOpen(false);
   };
 
   const handleDelete = async () => {
     if (deletingProduct) {
-      await deleteProduct(deletingProduct.id);
-      const updated = await getProducts();
-      setProducts(updated);
+      await deleteProduct.mutateAsync(deletingProduct.id);
       setDeleteDialogOpen(false);
       setDeletingProduct(null);
     }
   };
 
-  if (loading) return <LoadingSkeleton type="table" />;
+  if (isLoading) return <LoadingSkeleton type="table" />;
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Products" description="Manage your product catalog" action={<Button onClick={openAdd}><Plus className="mr-2 h-4 w-4" />Add Product</Button>} />
+      <PageHeader title="Products" description="Manage your product catalog" action={<Button onClick={openAdd} className="rounded-xl shadow-lg shadow-primary/15 hover:shadow-primary/25 transition-shadow"><Plus className="mr-2 h-4 w-4" />Add Product</Button>} />
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3 rounded-2xl border bg-card/60 glass p-3 shadow-float">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search by name or SKU..." className="pl-9" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
+          <Input placeholder="Search by name or SKU..." className="pl-9 rounded-xl" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
         </div>
         <Select value={categoryFilter} onValueChange={(v) => { if (v !== null) { setCategoryFilter(v); setPage(1); } }}>
-          <SelectTrigger className="w-[180px]"><SelectValue placeholder="All Categories" /></SelectTrigger>
+          <SelectTrigger className="w-[180px] rounded-xl"><SelectValue placeholder="All Categories" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
             {CATEGORIES.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={(v) => { if (v !== null) { setStatusFilter(v); setPage(1); } }}>
-          <SelectTrigger className="w-[160px]"><SelectValue placeholder="All Status" /></SelectTrigger>
+          <SelectTrigger className="w-[160px] rounded-xl"><SelectValue placeholder="All Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="in_stock">In Stock</SelectItem>
@@ -111,13 +105,13 @@ export default function ProductsPage() {
             <SelectItem value="out_of_stock">Out of Stock</SelectItem>
           </SelectContent>
         </Select>
-        <Button variant="outline" size="sm"><Download className="mr-2 h-4 w-4" />Export</Button>
+        <Button variant="outline" size="sm" className="rounded-xl"><Download className="mr-2 h-4 w-4" />Export</Button>
       </div>
 
       {paginated.length === 0 ? (
         <EmptyState title="No products found" description="Try adjusting your search or filters" />
       ) : (
-        <div className="rounded-xl border bg-card shadow-sm">
+        <div className="rounded-2xl border bg-card shadow-float overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
@@ -141,56 +135,57 @@ export default function ProductsPage() {
                     </div>
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm font-mono">{p.sku}</TableCell>
-                  <TableCell><Badge variant="secondary">{CATEGORIES.find((c) => c.id === p.categoryId)?.name || "—"}</Badge></TableCell>
+                  <TableCell><Badge variant="secondary" className="rounded-full">{CATEGORIES.find((c) => c.id === p.categoryId)?.name || "\u2014"}</Badge></TableCell>
                   <TableCell className="text-right">{formatCurrency(p.buyingPrice)}</TableCell>
-                  <TableCell className="text-right">{formatCurrency(p.sellingPrice)}</TableCell>
+                  <TableCell className="text-right font-medium">{formatCurrency(p.sellingPrice)}</TableCell>
                   <TableCell className="text-right">{formatNumber(p.currentStock)} {p.unit}</TableCell>
                   <TableCell><StatusBadge status={p.status} /></TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openEdit(p)}><Pencil className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8 text-destructive hover:text-destructive" onClick={() => { setDeletingProduct(p); setDeleteDialogOpen(true); }}><Trash2 className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => openEdit(p)}><Pencil className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg text-destructive hover:text-destructive" onClick={() => { setDeletingProduct(p); setDeleteDialogOpen(true); }}><Trash2 className="h-4 w-4" /></Button>
                     </div>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-          <div className="flex items-center justify-between border-t px-4 py-3">
+          <div className="flex items-center justify-between border-t border-border/50 px-4 py-3">
             <p className="text-sm text-muted-foreground">Showing {((page - 1) * PAGE_SIZE) + 1} to {Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length} products</p>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}><ChevronLeft className="h-4 w-4" /></Button>
-              <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)}><ChevronRight className="h-4 w-4" /></Button>
+              <Button variant="outline" size="sm" className="rounded-xl" disabled={page <= 1} onClick={() => setPage(page - 1)}><ChevronLeft className="h-4 w-4" /></Button>
+              <Button variant="outline" size="sm" className="rounded-xl" disabled={page >= totalPages} onClick={() => setPage(page + 1)}><ChevronRight className="h-4 w-4" /></Button>
             </div>
           </div>
         </div>
       )}
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto glass-card">
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
           <DialogHeader>
-            <DialogTitle>{editingProduct ? "Edit Product" : "Add Product"}</DialogTitle>
+            <DialogTitle className="text-xl">{editingProduct ? "Edit Product" : "Add Product"}</DialogTitle>
           </DialogHeader>
           <div className="grid gap-4 py-4">
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Name</Label>
-                <Input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
+                <Input className="rounded-xl" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} />
               </div>
               <div className="space-y-2">
                 <Label>SKU</Label>
-                <Input value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} />
+                <Input className="rounded-xl" value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Barcode</Label>
-                <Input value={form.barcode} onChange={(e) => setForm({ ...form, barcode: e.target.value })} />
+                <Input className="rounded-xl" value={form.barcode} onChange={(e) => setForm({ ...form, barcode: e.target.value })} />
               </div>
               <div className="space-y-2">
                 <Label>Category</Label>
                 <Select value={form.categoryId} onValueChange={(v) => v !== null && setForm({ ...form, categoryId: v })}>
-                  <SelectTrigger><SelectValue placeholder="Select category" /></SelectTrigger>
+                  <SelectTrigger className="rounded-xl"><SelectValue placeholder="Select category" /></SelectTrigger>
                   <SelectContent>
                     {CATEGORIES.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                   </SelectContent>
@@ -199,31 +194,31 @@ export default function ProductsPage() {
             </div>
             <div className="space-y-2">
               <Label>Description</Label>
-              <Textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
+              <Textarea className="rounded-xl" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>Buying Price</Label>
-                <Input type="number" value={form.buyingPrice} onChange={(e) => setForm({ ...form, buyingPrice: Number(e.target.value) })} />
+                <Input type="number" className="rounded-xl" value={form.buyingPrice} onChange={(e) => setForm({ ...form, buyingPrice: Number(e.target.value) })} />
               </div>
               <div className="space-y-2">
                 <Label>Selling Price</Label>
-                <Input type="number" value={form.sellingPrice} onChange={(e) => setForm({ ...form, sellingPrice: Number(e.target.value) })} />
+                <Input type="number" className="rounded-xl" value={form.sellingPrice} onChange={(e) => setForm({ ...form, sellingPrice: Number(e.target.value) })} />
               </div>
             </div>
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label>Current Stock</Label>
-                <Input type="number" value={form.currentStock} onChange={(e) => setForm({ ...form, currentStock: Number(e.target.value) })} />
+                <Input type="number" className="rounded-xl" value={form.currentStock} onChange={(e) => setForm({ ...form, currentStock: Number(e.target.value) })} />
               </div>
               <div className="space-y-2">
                 <Label>Minimum Stock Alert</Label>
-                <Input type="number" value={form.minimumStock} onChange={(e) => setForm({ ...form, minimumStock: Number(e.target.value) })} />
+                <Input type="number" className="rounded-xl" value={form.minimumStock} onChange={(e) => setForm({ ...form, minimumStock: Number(e.target.value) })} />
               </div>
               <div className="space-y-2">
                 <Label>Unit</Label>
                 <Select value={form.unit} onValueChange={(v) => v !== null && setForm({ ...form, unit: v })}>
-                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="rounded-xl"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     {UNITS.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}
                   </SelectContent>
@@ -232,8 +227,8 @@ export default function ProductsPage() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialogOpen(false)}>Cancel</Button>
-            <Button onClick={handleSave}>{editingProduct ? "Save Changes" : "Add Product"}</Button>
+            <Button variant="outline" className="rounded-xl" onClick={() => setDialogOpen(false)}>Cancel</Button>
+            <Button className="rounded-xl shadow-lg shadow-primary/15" onClick={handleSave}>{editingProduct ? "Save Changes" : "Add Product"}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

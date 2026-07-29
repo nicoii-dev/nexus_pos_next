@@ -34,84 +34,68 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { useState, useEffect } from "react";
-import { getDashboardStats, getSalesTrend, getRevenueTrend, getTopSellingProducts, getBestCategories } from "@/services/reports";
-import { getSales } from "@/services/sales";
-import { getProducts } from "@/services/products";
-import type { DashboardStats, ChartData, Sale, Product } from "@/types";
+import { useGetDashboardStats, useGetSalesTrend, useGetRevenueTrend, useGetTopSellingProducts, useGetBestCategories } from "@/services/reports";
+import { useGetSales } from "@/services/sales";
+import { useGetProducts } from "@/services/products";
 
-const PIE_COLORS = ["#2563eb", "#16a34a", "#ea580c", "#9333ea", "#dc2626"];
+const PIE_COLORS = ["#6366f1", "#10b981", "#f97316", "#a855f7", "#ef4444"];
 
 export default function DashboardPage() {
-  const [stats, setStats] = useState<DashboardStats | null>(null);
-  const [salesTrend, setSalesTrend] = useState<ChartData[]>([]);
-  const [revenueTrend, setRevenueTrend] = useState<ChartData[]>([]);
-  const [topProducts, setTopProducts] = useState<ChartData[]>([]);
-  const [categories, setCategories] = useState<ChartData[]>([]);
-  const [recentSales, setRecentSales] = useState<Sale[]>([]);
-  const [lowStockProducts, setLowStockProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: stats } = useGetDashboardStats();
+  const { data: salesTrend = [] } = useGetSalesTrend();
+  const { data: revenueTrend = [] } = useGetRevenueTrend();
+  const { data: topProducts = [] } = useGetTopSellingProducts();
+  const { data: categories = [] } = useGetBestCategories();
+  const { data: sales = [] } = useGetSales();
+  const { data: products = [] } = useGetProducts();
 
-  useEffect(() => {
-    async function load() {
-      const [s, st, rt, tp, cat, sl, pr] = await Promise.all([
-        getDashboardStats(),
-        getSalesTrend(),
-        getRevenueTrend(),
-        getTopSellingProducts(),
-        getBestCategories(),
-        getSales(),
-        getProducts(),
-      ]);
-      setStats(s);
-      setSalesTrend(st);
-      setRevenueTrend(rt);
-      setTopProducts(tp);
-      setCategories(cat);
-      setRecentSales(sl.slice(0, 5));
-      setLowStockProducts(pr.filter((p) => p.status !== "in_stock").slice(0, 5));
-      setLoading(false);
-    }
-    load();
-  }, []);
+  const isLoading = !stats;
+  const recentSales = sales.slice(0, 5);
+  const lowStockProducts = products.filter((p) => p.status !== "in_stock").slice(0, 5);
 
-  if (loading) return <div className="space-y-6"><LoadingSkeleton type="stat" /><div className="grid gap-6 lg:grid-cols-2"><LoadingSkeleton type="chart" /><LoadingSkeleton type="chart" /></div></div>;
+  if (isLoading) return <div className="space-y-6"><LoadingSkeleton type="stat" /><div className="grid gap-6 lg:grid-cols-2"><LoadingSkeleton type="chart" /><LoadingSkeleton type="chart" /></div></div>;
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between animate-in-up">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-          <p className="text-sm text-muted-foreground">Overview of your store performance</p>
+          <h1 className="text-3xl font-bold tracking-tight text-gradient">Dashboard</h1>
+          <p className="text-sm text-muted-foreground mt-1">Overview of your store performance</p>
         </div>
         <div className="flex gap-2">
-          <Button size="sm"><Plus className="mr-2 h-4 w-4" />New Sale</Button>
-          <Button size="sm" variant="outline"><FileText className="mr-2 h-4 w-4" />View Reports</Button>
+          <Button size="sm" className="rounded-xl shadow-lg shadow-primary/15 hover:shadow-primary/25 transition-shadow"><Plus className="mr-2 h-4 w-4" />New Sale</Button>
+          <Button size="sm" variant="outline" className="rounded-xl"><FileText className="mr-2 h-4 w-4" />View Reports</Button>
         </div>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Today's Sales" value={stats?.todaysSales ?? 0} icon={<ShoppingCart className="h-5 w-5 text-blue-600" />} change={12} />
-        <StatCard title="Today's Revenue" value={formatCurrency(stats?.todaysRevenue ?? 0)} icon={<DollarSign className="h-5 w-5 text-emerald-600" />} change={8} />
-        <StatCard title="Today's Profit" value={formatCurrency(stats?.todaysProfit ?? 0)} icon={<TrendingUp className="h-5 w-5 text-violet-600" />} change={-3} />
-        <StatCard title="Transactions" value={stats?.todaysTransactions ?? 0} icon={<ReceiptText className="h-5 w-5 text-orange-600" />} change={15} />
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4" style={{ animationDelay: "0.05s" }}>
+        <StatCard title="Today's Sales" value={stats?.todaysSales ?? 0} icon={<ShoppingCart className="h-5 w-5 text-blue-500" />} change={12} />
+        <StatCard title="Today's Revenue" value={formatCurrency(stats?.todaysRevenue ?? 0)} icon={<DollarSign className="h-5 w-5 text-emerald-500" />} change={8} />
+        <StatCard title="Today's Profit" value={formatCurrency(stats?.todaysProfit ?? 0)} icon={<TrendingUp className="h-5 w-5 text-violet-500" />} change={-3} />
+        <StatCard title="Transactions" value={stats?.todaysTransactions ?? 0} icon={<ReceiptText className="h-5 w-5 text-orange-500" />} change={15} />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        <StatCard title="Total Products" value={stats?.totalProducts ?? 0} icon={<Package className="h-5 w-5 text-cyan-600" />} />
-        <StatCard title="Low Stock" value={stats?.lowStockProducts ?? 0} icon={<AlertTriangle className="h-5 w-5 text-amber-600" />} />
-        <StatCard title="Out of Stock" value={stats?.outOfStockProducts ?? 0} icon={<XCircle className="h-5 w-5 text-red-600" />} />
+      <div className="grid gap-4 md:grid-cols-3">
+        <StatCard title="Total Products" value={stats?.totalProducts ?? 0} icon={<Package className="h-5 w-5 text-cyan-500" />} />
+        <StatCard title="Low Stock" value={stats?.lowStockProducts ?? 0} icon={<AlertTriangle className="h-5 w-5 text-amber-500" />} />
+        <StatCard title="Out of Stock" value={stats?.outOfStockProducts ?? 0} icon={<XCircle className="h-5 w-5 text-red-500" />} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <ChartCard title="Sales Trend" description="Last 7 days">
           <ResponsiveContainer width="100%" height={300}>
             <LineChart data={salesTrend}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+              <defs>
+                <linearGradient id="salesGradient" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#6366f1" stopOpacity={0.3} />
+                  <stop offset="100%" stopColor="#6366f1" stopOpacity={0} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-border/50" />
               <XAxis dataKey="name" className="text-xs" />
               <YAxis className="text-xs" />
               <Tooltip />
-              <Line type="monotone" dataKey="value" stroke="#2563eb" strokeWidth={2} dot={{ r: 4 }} />
+              <Line type="monotone" dataKey="value" stroke="#6366f1" strokeWidth={2.5} dot={{ r: 4, fill: "#6366f1", strokeWidth: 2, stroke: "var(--card)" }} activeDot={{ r: 6, strokeWidth: 2, stroke: "#6366f1" }} />
             </LineChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -119,12 +103,22 @@ export default function DashboardPage() {
         <ChartCard title="Revenue Trend" description="This week vs last week">
           <ResponsiveContainer width="100%" height={300}>
             <BarChart data={revenueTrend}>
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+              <defs>
+                <linearGradient id="revenueGrad1" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#6366f1" stopOpacity={1} />
+                  <stop offset="100%" stopColor="#6366f1" stopOpacity={0.6} />
+                </linearGradient>
+                <linearGradient id="revenueGrad2" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stopColor="#a5b4fc" stopOpacity={0.8} />
+                  <stop offset="100%" stopColor="#a5b4fc" stopOpacity={0.4} />
+                </linearGradient>
+              </defs>
+              <CartesianGrid strokeDasharray="3 3" className="stroke-border/50" />
               <XAxis dataKey="name" className="text-xs" />
               <YAxis className="text-xs" />
               <Tooltip />
-              <Bar dataKey="value" fill="#2563eb" radius={[4, 4, 0, 0]} />
-              <Bar dataKey="value2" fill="#93c5fd" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="value" fill="url(#revenueGrad1)" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="value2" fill="url(#revenueGrad2)" radius={[6, 6, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -134,11 +128,11 @@ export default function DashboardPage() {
         <ChartCard title="Top Selling Products">
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={topProducts} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" className="stroke-border" />
+              <CartesianGrid strokeDasharray="3 3" className="stroke-border/50" />
               <XAxis type="number" className="text-xs" />
               <YAxis type="category" dataKey="name" width={140} className="text-xs" />
               <Tooltip />
-              <Bar dataKey="value" fill="#2563eb" radius={[0, 4, 4, 0]} />
+              <Bar dataKey="value" fill="#6366f1" radius={[0, 6, 6, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -146,7 +140,7 @@ export default function DashboardPage() {
         <ChartCard title="Best Categories">
           <ResponsiveContainer width="100%" height={250}>
             <PieChart>
-              <Pie data={categories} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={90} label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}>
+              <Pie data={categories} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={95} innerRadius={50} paddingAngle={3} label={({ name, percent }) => `${name} ${((percent ?? 0) * 100).toFixed(0)}%`}>
                 {categories.map((_, i) => (
                   <Cell key={i} fill={PIE_COLORS[i % PIE_COLORS.length]} />
                 ))}
@@ -158,7 +152,8 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-xl border bg-card shadow-sm">
+        <div className="rounded-2xl border bg-card shadow-float overflow-hidden">
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
           <div className="p-6 pb-4">
             <SectionHeader title="Recent Transactions" description="Latest sales" />
           </div>
@@ -174,8 +169,8 @@ export default function DashboardPage() {
             <TableBody>
               {recentSales.map((sale) => (
                 <TableRow key={sale.id}>
-                  <TableCell className="font-medium">{sale.transactionNumber}</TableCell>
-                  <TableCell>{formatCurrency(sale.total)}</TableCell>
+                  <TableCell className="font-medium font-mono">{sale.transactionNumber}</TableCell>
+                  <TableCell className="font-medium">{formatCurrency(sale.total)}</TableCell>
                   <TableCell><StatusBadge status={sale.status} /></TableCell>
                   <TableCell className="text-muted-foreground text-sm">{formatDateTime(sale.date)}</TableCell>
                 </TableRow>
@@ -184,7 +179,8 @@ export default function DashboardPage() {
           </Table>
         </div>
 
-        <div className="rounded-xl border bg-card shadow-sm">
+        <div className="rounded-2xl border bg-card shadow-float overflow-hidden">
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
           <div className="p-6 pb-4">
             <SectionHeader title="Low Stock Alert" description="Products needing attention" />
           </div>

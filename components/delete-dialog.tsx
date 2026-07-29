@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -24,12 +23,12 @@ interface DeleteDialogProps {
 export function DeleteDialog({ open, onOpenChange, title, description, onConfirm, loading }: DeleteDialogProps) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md glass-card">
         <DialogHeader>
-          <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-destructive/10">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-destructive/15 to-destructive/5">
             <Trash2 className="h-6 w-6 text-destructive" />
           </div>
-          <DialogTitle className="text-center">{title}</DialogTitle>
+          <DialogTitle className="text-center text-lg">{title}</DialogTitle>
           <DialogDescription className="text-center">{description}</DialogDescription>
         </DialogHeader>
         <DialogFooter className="gap-2 sm:gap-0">

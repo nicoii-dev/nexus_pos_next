@@ -1,18 +1,31 @@
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { Settings } from "@/types";
+import api from "@/lib/axios";
 
-const PLACEHOLDER_SETTINGS: Settings = {
-  businessName: "Nexus POS Store",
-  currency: "PHP",
-  timezone: "Asia/Manila",
-  taxRate: 12,
-  receiptHeader: "Thank you for shopping!",
-  receiptFooter: "Please come again.",
+const SETTINGS_KEY = ["settings"];
+
+const getSettings = async (): Promise<Settings> => {
+  const response = await api.get("/v1/settings");
+  return response.data;
 };
 
-export async function getSettings(): Promise<Settings> {
-  return PLACEHOLDER_SETTINGS;
-}
+const updateSettings = async (data: Partial<Settings>): Promise<Settings> => {
+  const response = await api.patch("/v1/settings", data);
+  return response.data;
+};
 
-export async function updateSettings(data: Partial<Settings>): Promise<Settings> {
-  return { ...PLACEHOLDER_SETTINGS, ...data };
-}
+export const useGetSettings = () =>
+  useQuery({
+    queryKey: SETTINGS_KEY,
+    queryFn: () => getSettings(),
+  });
+
+export const useUpdateSettings = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: updateSettings,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: SETTINGS_KEY }),
+  });
+};
+
+export { getSettings, updateSettings };

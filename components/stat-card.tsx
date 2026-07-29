@@ -14,23 +14,29 @@ interface StatCardProps {
 
 export function StatCard({ title, value, icon, change, changeLabel = "vs yesterday", className }: StatCardProps) {
   return (
-    <div className={cn("rounded-xl border bg-card p-6 shadow-sm transition-shadow hover:shadow-md", className)}>
-      <div className="flex items-center justify-between">
+    <div className={cn("group relative overflow-hidden rounded-2xl border bg-card p-6 shadow-float transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-elevated card-hover animate-in-up", className)}>
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+      <div className="relative flex items-center justify-between">
         <p className="text-sm font-medium text-muted-foreground">{title}</p>
-        <div className="rounded-lg bg-muted p-2">{icon}</div>
+        <div className="rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 p-2.5 transition-transform duration-300 group-hover:scale-110">
+          {icon}
+        </div>
       </div>
-      <div className="mt-4">
-        <p className="text-2xl font-bold tracking-tight">{value}</p>
+      <div className="relative mt-4">
+        <p className="text-3xl font-bold tracking-tight">{value}</p>
         {change !== undefined && (
-          <div className="mt-1 flex items-center gap-1">
+          <div className="mt-2 flex items-center gap-1.5">
             {change >= 0 ? (
-              <TrendingUp className="h-3 w-3 text-emerald-500" />
+              <div className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5">
+                <TrendingUp className="h-3 w-3 text-emerald-500" />
+                <span className="text-xs font-semibold text-emerald-500">+{change}%</span>
+              </div>
             ) : (
-              <TrendingDown className="h-3 w-3 text-red-500" />
+              <div className="flex items-center gap-1 rounded-full bg-red-500/10 px-2 py-0.5">
+                <TrendingDown className="h-3 w-3 text-red-500" />
+                <span className="text-xs font-semibold text-red-500">{change}%</span>
+              </div>
             )}
-            <span className={cn("text-xs font-medium", change >= 0 ? "text-emerald-500" : "text-red-500")}>
-              {change >= 0 ? "+" : ""}{change}%
-            </span>
             <span className="text-xs text-muted-foreground">{changeLabel}</span>
           </div>
         )}

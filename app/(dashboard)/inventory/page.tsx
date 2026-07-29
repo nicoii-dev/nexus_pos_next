@@ -1,8 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { PageHeader } from "@/components/page-header";
-import { SectionHeader } from "@/components/section-header";
 import { StatusBadge } from "@/components/status-badge";
 import { StatCard } from "@/components/stat-card";
 import { LoadingSkeleton } from "@/components/loading-skeleton";
@@ -13,24 +12,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Plus, Package, AlertTriangle, XCircle, ArrowDownToLine, ArrowUpFromLine, Pencil } from "lucide-react";
-import { getInventoryMovements } from "@/services/inventory";
-import { getProducts } from "@/services/products";
-import type { InventoryMovement, Product } from "@/types";
+import { useGetInventoryMovements } from "@/services/inventory";
+import { useGetProducts } from "@/services/products";
 
 export default function InventoryPage() {
-  const [movements, setMovements] = useState<InventoryMovement[]>([]);
-  const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: movements = [], isLoading: movementsLoading } = useGetInventoryMovements();
+  const { data: products = [], isLoading: productsLoading } = useGetProducts();
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
-
-  useEffect(() => {
-    Promise.all([getInventoryMovements(), getProducts()]).then(([m, p]) => {
-      setMovements(m);
-      setProducts(p);
-      setLoading(false);
-    });
-  }, []);
 
   const filtered = movements.filter((m) => {
     if (search && !m.productName.toLowerCase().includes(search.toLowerCase())) return false;
@@ -41,33 +30,33 @@ export default function InventoryPage() {
   const lowStock = products.filter((p) => p.status === "low_stock");
   const outOfStock = products.filter((p) => p.status === "out_of_stock");
 
-  if (loading) return <LoadingSkeleton type="table" />;
+  if (movementsLoading || productsLoading) return <LoadingSkeleton type="table" />;
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Inventory" description="Track stock movements and inventory status" action={<Button><Plus className="mr-2 h-4 w-4" />Record Movement</Button>} />
+      <PageHeader title="Inventory" description="Track stock movements and inventory status" action={<Button className="rounded-xl shadow-lg shadow-primary/15"><Plus className="mr-2 h-4 w-4" />Record Movement</Button>} />
 
       <div className="grid gap-4 md:grid-cols-3">
-        <StatCard title="Total Products" value={products.length} icon={<Package className="h-5 w-5 text-blue-600" />} />
-        <StatCard title="Low Stock Items" value={lowStock.length} icon={<AlertTriangle className="h-5 w-5 text-amber-600" />} />
-        <StatCard title="Out of Stock" value={outOfStock.length} icon={<XCircle className="h-5 w-5 text-red-600" />} />
+        <StatCard title="Total Products" value={products.length} icon={<Package className="h-5 w-5 text-blue-500" />} />
+        <StatCard title="Low Stock Items" value={lowStock.length} icon={<AlertTriangle className="h-5 w-5 text-amber-500" />} />
+        <StatCard title="Out of Stock" value={outOfStock.length} icon={<XCircle className="h-5 w-5 text-red-500" />} />
       </div>
 
       <Tabs defaultValue="movements">
-        <TabsList>
-          <TabsTrigger value="movements">Movements</TabsTrigger>
-          <TabsTrigger value="low-stock">Low Stock ({lowStock.length})</TabsTrigger>
-          <TabsTrigger value="out-of-stock">Out of Stock ({outOfStock.length})</TabsTrigger>
+        <TabsList className="rounded-xl">
+          <TabsTrigger value="movements" className="rounded-lg">Movements</TabsTrigger>
+          <TabsTrigger value="low-stock" className="rounded-lg">Low Stock ({lowStock.length})</TabsTrigger>
+          <TabsTrigger value="out-of-stock" className="rounded-lg">Out of Stock ({outOfStock.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="movements" className="space-y-4">
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative flex-1 min-w-[200px] max-w-sm">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input placeholder="Search products..." className="pl-9" value={search} onChange={(e) => setSearch(e.target.value)} />
+              <Input placeholder="Search products..." className="pl-9 rounded-xl" value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
             <Select value={typeFilter} onValueChange={(v) => v !== null && setTypeFilter(v)}>
-              <SelectTrigger className="w-[180px]"><SelectValue placeholder="All Types" /></SelectTrigger>
+              <SelectTrigger className="w-[180px] rounded-xl"><SelectValue placeholder="All Types" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
                 <SelectItem value="stock_in">Stock In</SelectItem>
@@ -77,7 +66,7 @@ export default function InventoryPage() {
             </Select>
           </div>
 
-          <div className="rounded-xl border bg-card shadow-sm">
+          <div className="rounded-2xl border bg-card shadow-float overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -105,7 +94,7 @@ export default function InventoryPage() {
                         <span className="capitalize text-sm">{m.type.replace("_", " ")}</span>
                       </div>
                     </TableCell>
-                    <TableCell className={`text-right font-medium ${m.quantity > 0 ? "text-emerald-600" : "text-red-600"}`}>
+                    <TableCell className={`text-right font-medium ${m.quantity > 0 ? "text-emerald-500" : "text-red-500"}`}>
                       {m.quantity > 0 ? "+" : ""}{formatNumber(m.quantity)}
                     </TableCell>
                     <TableCell className="text-sm text-muted-foreground">{m.notes}</TableCell>
@@ -120,9 +109,9 @@ export default function InventoryPage() {
 
         <TabsContent value="low-stock" className="space-y-4">
           {lowStock.length === 0 ? (
-            <div className="rounded-xl border bg-card p-8 text-center text-muted-foreground">No low stock products</div>
+            <div className="rounded-2xl border bg-card p-8 text-center text-muted-foreground">No low stock products</div>
           ) : (
-            <div className="rounded-xl border bg-card shadow-sm">
+            <div className="rounded-2xl border bg-card shadow-float overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -151,9 +140,9 @@ export default function InventoryPage() {
 
         <TabsContent value="out-of-stock" className="space-y-4">
           {outOfStock.length === 0 ? (
-            <div className="rounded-xl border bg-card p-8 text-center text-muted-foreground">No out of stock products</div>
+            <div className="rounded-2xl border bg-card p-8 text-center text-muted-foreground">No out of stock products</div>
           ) : (
-            <div className="rounded-xl border bg-card shadow-sm">
+            <div className="rounded-2xl border bg-card shadow-float overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>

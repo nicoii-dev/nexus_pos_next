@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo } from "react";
 import { PageHeader } from "@/components/page-header";
 import { StatusBadge } from "@/components/status-badge";
 import { LoadingSkeleton } from "@/components/loading-skeleton";
@@ -13,23 +13,18 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { Search, Eye, Printer, RotateCcw, ChevronLeft, ChevronRight, Download } from "lucide-react";
-import { getSales } from "@/services/sales";
+import { useGetSales } from "@/services/sales";
 import type { Sale } from "@/types";
 
 const PAGE_SIZE = 10;
 
 export default function SalesPage() {
-  const [sales, setSales] = useState<Sale[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { data: sales = [], isLoading } = useGetSales();
   const [search, setSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [paymentFilter, setPaymentFilter] = useState("all");
   const [page, setPage] = useState(1);
   const [viewingSale, setViewingSale] = useState<Sale | null>(null);
-
-  useEffect(() => {
-    getSales().then((s) => { setSales(s); setLoading(false); });
-  }, []);
 
   const filtered = useMemo(() => {
     return sales.filter((s) => {
@@ -43,19 +38,19 @@ export default function SalesPage() {
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paginated = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
-  if (loading) return <LoadingSkeleton type="table" />;
+  if (isLoading) return <LoadingSkeleton type="table" />;
 
   return (
     <div className="space-y-6">
       <PageHeader title="Sales" description="View all transactions" />
 
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3 rounded-2xl border bg-card/60 glass p-3 shadow-float">
         <div className="relative flex-1 min-w-[200px] max-w-sm">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input placeholder="Search transaction or cashier..." className="pl-9" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
+          <Input placeholder="Search transaction or cashier..." className="pl-9 rounded-xl" value={search} onChange={(e) => { setSearch(e.target.value); setPage(1); }} />
         </div>
         <Select value={statusFilter} onValueChange={(v) => { if (v !== null) { setStatusFilter(v); setPage(1); } }}>
-          <SelectTrigger className="w-[160px]"><SelectValue placeholder="All Status" /></SelectTrigger>
+          <SelectTrigger className="w-[160px] rounded-xl"><SelectValue placeholder="All Status" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
             <SelectItem value="completed">Completed</SelectItem>
@@ -64,7 +59,7 @@ export default function SalesPage() {
           </SelectContent>
         </Select>
         <Select value={paymentFilter} onValueChange={(v) => { if (v !== null) { setPaymentFilter(v); setPage(1); } }}>
-          <SelectTrigger className="w-[180px]"><SelectValue placeholder="All Payments" /></SelectTrigger>
+          <SelectTrigger className="w-[180px] rounded-xl"><SelectValue placeholder="All Payments" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Payments</SelectItem>
             <SelectItem value="cash">Cash</SelectItem>
@@ -72,13 +67,13 @@ export default function SalesPage() {
             <SelectItem value="digital">Digital</SelectItem>
           </SelectContent>
         </Select>
-        <Button variant="outline" size="sm"><Download className="mr-2 h-4 w-4" />Export</Button>
+        <Button variant="outline" size="sm" className="rounded-xl"><Download className="mr-2 h-4 w-4" />Export</Button>
       </div>
 
       {paginated.length === 0 ? (
         <EmptyState title="No transactions found" description="Try adjusting your filters" />
       ) : (
-        <div className="rounded-xl border bg-card shadow-sm">
+        <div className="rounded-2xl border bg-card shadow-float overflow-hidden">
           <Table>
             <TableHeader>
               <TableRow>
@@ -104,29 +99,30 @@ export default function SalesPage() {
                   <TableCell className="text-sm text-muted-foreground">{formatDateTime(s.date)}</TableCell>
                   <TableCell className="text-right">
                     <div className="flex justify-end gap-1">
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setViewingSale(s)}><Eye className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8"><Printer className="h-4 w-4" /></Button>
-                      <Button variant="ghost" size="icon" className="h-8 w-8"><RotateCcw className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg" onClick={() => setViewingSale(s)}><Eye className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg"><Printer className="h-4 w-4" /></Button>
+                      <Button variant="ghost" size="icon" className="h-8 w-8 rounded-lg"><RotateCcw className="h-4 w-4" /></Button>
                     </div>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
-          <div className="flex items-center justify-between border-t px-4 py-3">
+          <div className="flex items-center justify-between border-t border-border/50 px-4 py-3">
             <p className="text-sm text-muted-foreground">Showing {((page - 1) * PAGE_SIZE) + 1} to {Math.min(page * PAGE_SIZE, filtered.length)} of {filtered.length}</p>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" disabled={page <= 1} onClick={() => setPage(page - 1)}><ChevronLeft className="h-4 w-4" /></Button>
-              <Button variant="outline" size="sm" disabled={page >= totalPages} onClick={() => setPage(page + 1)}><ChevronRight className="h-4 w-4" /></Button>
+              <Button variant="outline" size="sm" className="rounded-xl" disabled={page <= 1} onClick={() => setPage(page - 1)}><ChevronLeft className="h-4 w-4" /></Button>
+              <Button variant="outline" size="sm" className="rounded-xl" disabled={page >= totalPages} onClick={() => setPage(page + 1)}><ChevronRight className="h-4 w-4" /></Button>
             </div>
           </div>
         </div>
       )}
 
       <Dialog open={!!viewingSale} onOpenChange={() => setViewingSale(null)}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg glass-card">
+          <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
           <DialogHeader>
-            <DialogTitle>Transaction Details</DialogTitle>
+            <DialogTitle className="text-xl">Transaction Details</DialogTitle>
           </DialogHeader>
           {viewingSale && (
             <div className="space-y-4">
@@ -151,11 +147,11 @@ export default function SalesPage() {
               <div className="space-y-1 text-sm">
                 <div className="flex justify-between"><span className="text-muted-foreground">Subtotal</span><span>{formatCurrency(viewingSale.subtotal)}</span></div>
                 <div className="flex justify-between"><span className="text-muted-foreground">Discount</span><span>-{formatCurrency(viewingSale.discount)}</span></div>
-                <div className="flex justify-between font-semibold text-base"><span>Total</span><span>{formatCurrency(viewingSale.total)}</span></div>
+                <div className="flex justify-between font-semibold text-base"><span>Total</span><span className="text-gradient">{formatCurrency(viewingSale.total)}</span></div>
               </div>
               <DialogFooter className="gap-2">
-                <Button variant="outline" onClick={() => setViewingSale(null)}>Close</Button>
-                <Button variant="outline"><Printer className="mr-2 h-4 w-4" />Print Receipt</Button>
+                <Button variant="outline" className="rounded-xl" onClick={() => setViewingSale(null)}>Close</Button>
+                <Button variant="outline" className="rounded-xl"><Printer className="mr-2 h-4 w-4" />Print Receipt</Button>
               </DialogFooter>
             </div>
           )}

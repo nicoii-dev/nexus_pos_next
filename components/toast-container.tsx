@@ -12,14 +12,17 @@ export function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
   if (toasts.length === 0) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2">
+    <div className="fixed bottom-6 right-6 z-[100] flex flex-col gap-3">
       {toasts.map((t) => (
         <div
           key={t.id}
-          className={`flex items-start gap-3 rounded-xl border bg-card p-4 shadow-lg animate-in slide-in-from-right-full duration-300 ${
-            t.variant === "destructive" ? "border-destructive/50" : "border-emerald-500/50"
+          className={`relative overflow-hidden flex items-start gap-3.5 rounded-2xl border bg-card/95 glass p-4 shadow-elevated animate-in slide-in-from-right-full duration-300 ${
+            t.variant === "destructive" ? "border-destructive/30" : "border-emerald-500/30"
           }`}
         >
+          <div className={`absolute inset-y-0 left-0 w-1 ${
+            t.variant === "destructive" ? "bg-gradient-to-b from-destructive to-destructive/60" : "bg-gradient-to-b from-emerald-500 to-emerald-500/60"
+          }`} />
           {t.variant === "destructive" ? (
             <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
           ) : (
@@ -29,7 +32,7 @@ export function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
             {t.title && <p className="text-sm font-semibold">{t.title}</p>}
             {t.description && <p className="text-sm text-muted-foreground">{t.description}</p>}
           </div>
-          <button onClick={() => onDismiss(t.id)} className="shrink-0 text-muted-foreground hover:text-foreground">
+          <button onClick={() => onDismiss(t.id)} className="shrink-0 rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
             <X className="h-4 w-4" />
           </button>
         </div>

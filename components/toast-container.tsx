@@ -16,7 +16,7 @@ export function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
       {toasts.map((t) => (
         <div
           key={t.id}
-          className={`relative overflow-hidden flex items-start gap-3.5 rounded-2xl border bg-card/95 glass p-4 shadow-elevated animate-in slide-in-from-right-full duration-300 ${
+          className={`relative overflow-hidden flex items-start gap-3.5 rounded-[10px] border bg-card/95 glass p-4 shadow-elevated animate-in slide-in-from-right-full duration-300 ${
             t.variant === "destructive" ? "border-destructive/30" : "border-emerald-500/30"
           }`}
         >
@@ -32,7 +32,7 @@ export function ToastContainer({ toasts, onDismiss }: ToastContainerProps) {
             {t.title && <p className="text-sm font-semibold">{t.title}</p>}
             {t.description && <p className="text-sm text-muted-foreground">{t.description}</p>}
           </div>
-          <button onClick={() => onDismiss(t.id)} className="shrink-0 rounded-lg p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
+          <button onClick={() => onDismiss(t.id)} className="shrink-0 rounded-[10px] p-1 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground">
             <X className="h-4 w-4" />
           </button>
         </div>

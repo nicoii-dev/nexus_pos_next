@@ -14,11 +14,11 @@ interface StatCardProps {
 
 export function StatCard({ title, value, icon, change, changeLabel = "vs yesterday", className }: StatCardProps) {
   return (
-    <div className={cn("group relative overflow-hidden rounded-2xl border bg-card p-6 shadow-float transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-elevated card-hover animate-in-up", className)}>
+    <div className={cn("group relative overflow-hidden rounded-[10px] border bg-card p-6 shadow-float transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-elevated card-hover animate-in-up", className)}>
       <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
       <div className="relative flex items-center justify-between">
         <p className="text-sm font-medium text-muted-foreground">{title}</p>
-        <div className="rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 p-2.5 transition-transform duration-300 group-hover:scale-110">
+        <div className="rounded-[10px] bg-gradient-to-br from-primary/10 to-primary/5 p-2.5 transition-transform duration-300 group-hover:scale-110">
           {icon}
         </div>
       </div>

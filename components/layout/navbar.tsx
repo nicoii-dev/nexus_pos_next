@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuSeparator,
@@ -20,6 +21,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useLogout } from "@/services/auth";
 import { BRANCHES } from "@/components/layout/data";
 
 interface NavbarProps {
@@ -28,10 +31,16 @@ interface NavbarProps {
 
 export function Navbar({ onMenuClick }: NavbarProps) {
   const { theme, setTheme } = useTheme();
+  const router = useRouter();
+  const logout = useLogout();
   const [mounted, setMounted] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState("1");
 
   useEffect(() => setMounted(true), []);
+
+  const handleLogout = () => {
+    logout.mutate(undefined, { onSuccess: () => router.push("/login") });
+  };
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center gap-4 border-b border-border/40 bg-background/80 glass-strong px-4 lg:px-6">
@@ -43,7 +52,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
 
       <div className="flex items-center gap-2">
         <Select value={selectedBranch} onValueChange={(v) => v !== null && setSelectedBranch(v)}>
-          <SelectTrigger className="w-[200px] h-9 rounded-xl border-border/60 bg-card/40 hover:bg-card/70 transition-colors">
+          <SelectTrigger className="w-[200px] h-9 rounded-[10px] border-border/60 bg-card/40 hover:bg-card/70 transition-colors">
             <SelectValue placeholder="Select branch" />
           </SelectTrigger>
           <SelectContent>
@@ -59,7 +68,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
       <div className="flex-1" />
 
       <div className="flex items-center gap-1.5">
-        <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-xl">
+        <Button variant="ghost" size="icon" className="relative h-9 w-9 rounded-[10px]">
           <Bell className="h-[18px] w-[18px]" />
           <span className="absolute -right-0.5 -top-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-gradient-to-br from-destructive to-destructive/80 text-[10px] font-bold text-white shadow-sm">
             <span className="relative flex h-full w-full items-center justify-center">
@@ -72,7 +81,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
         <Button
           variant="ghost"
           size="icon"
-          className="h-9 w-9 rounded-xl"
+          className="h-9 w-9 rounded-[10px]"
           onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
         >
           {mounted ? (
@@ -83,7 +92,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
         </Button>
 
         <DropdownMenu>
-          <DropdownMenuTrigger className="flex items-center gap-2.5 rounded-xl px-2.5 py-1.5 outline-none hover:bg-accent/70 transition-all duration-200 group">
+          <DropdownMenuTrigger className="flex items-center gap-2.5 rounded-[10px] px-2.5 py-1.5 outline-none hover:bg-accent/70 transition-all duration-200 group">
             <div className="relative">
               <Avatar className="h-8 w-8 ring-2 ring-border/40 transition-all duration-200 group-hover:ring-primary/30">
                 <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-xs font-semibold">JA</AvatarFallback>
@@ -95,13 +104,14 @@ export function Navbar({ onMenuClick }: NavbarProps) {
             </div>
             <ChevronDown className="hidden h-4 w-4 text-muted-foreground md:block transition-transform duration-200 group-data-[state=open]:rotate-180" />
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48 rounded-xl glass-card">
-            <DropdownMenuLabel>My Account</DropdownMenuLabel>
+          <DropdownMenuContent align="end" className="w-48 rounded-[10px] glass-card">
+            <DropdownMenuGroup>
+              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuItem>Profile</DropdownMenuItem>
+              <DropdownMenuItem>Settings</DropdownMenuItem>
+            </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-            <DropdownMenuItem>Settings</DropdownMenuItem>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem className="text-destructive">Log out</DropdownMenuItem>
+            <DropdownMenuItem className="text-destructive" onClick={handleLogout}>Log out</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

@@ -24,9 +24,9 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
       <div className="absolute inset-0 mesh-gradient pointer-events-none opacity-50" />
 
       <div className={cn("relative flex h-16 items-center gap-3 border-b border-border/40 px-4", collapsed && "justify-center px-0")}>
-        <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary via-primary/90 to-primary/70 text-primary-foreground text-sm font-bold shadow-glow">
+        <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-[10px] bg-gradient-to-br from-primary via-primary/90 to-primary/70 text-primary-foreground text-sm font-bold shadow-glow">
           N
-          <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-white/20 to-transparent" />
+            <div className="absolute inset-0 rounded-[10px] bg-gradient-to-br from-white/20 to-transparent" />
         </div>
         {!collapsed && (
           <div className="flex flex-col">
@@ -44,7 +44,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
               key={item.href}
               href={item.href}
               className={cn(
-                "group relative flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium transition-all duration-200",
+                "group relative flex items-center gap-3 rounded-[10px] px-3 py-2.5 text-sm font-medium transition-all duration-200",
                 isActive
                   ? "bg-gradient-to-r from-primary/12 to-primary/5 text-primary shadow-sm"
                   : "text-muted-foreground hover:bg-accent/70 hover:text-foreground",
@@ -56,7 +56,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
                 <div className="absolute left-0 top-1/2 -translate-y-1/2 h-6 w-1 rounded-r-full bg-gradient-to-b from-primary to-primary/60" />
               )}
               <div className={cn(
-                "flex h-8 w-8 shrink-0 items-center justify-center rounded-lg transition-all duration-200",
+                "flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] transition-all duration-200",
                 isActive
                   ? "bg-primary/12 text-primary"
                   : "text-muted-foreground group-hover:bg-accent group-hover:text-foreground group-hover:scale-105"
@@ -72,9 +72,9 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
       <div className="relative border-t border-border/40 p-2">
         <button
           onClick={onToggle}
-          className="flex w-full items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-sm text-muted-foreground hover:bg-accent/70 hover:text-foreground transition-all duration-200"
+          className="flex w-full items-center justify-center gap-2 rounded-[10px] px-3 py-2.5 text-sm text-muted-foreground hover:bg-accent/70 hover:text-foreground transition-all duration-200"
         >
-          <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-muted/60 transition-transform duration-200 group-hover:scale-105">
+          <div className="flex h-7 w-7 items-center justify-center rounded-[10px] bg-muted/60 transition-transform duration-200 group-hover:scale-105">
             {collapsed ? <ChevronRight className="h-3.5 w-3.5" /> : <ChevronLeft className="h-3.5 w-3.5" />}
           </div>
           {!collapsed && <span className="text-xs font-medium">Collapse</span>}

@@ -63,7 +63,7 @@ export default function ReportsPage() {
         action={
           <div className="flex gap-2">
             <Select value={dateRange} onValueChange={(v) => v !== null && setDateRange(v)}>
-              <SelectTrigger className="w-[160px] rounded-xl"><SelectValue /></SelectTrigger>
+              <SelectTrigger className="w-[160px] rounded-[10px]"><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="today">Today</SelectItem>
                 <SelectItem value="yesterday">Yesterday</SelectItem>
@@ -73,7 +73,7 @@ export default function ReportsPage() {
                 <SelectItem value="year">Annually</SelectItem>
               </SelectContent>
             </Select>
-            <Button variant="outline" className="rounded-xl"><Download className="mr-2 h-4 w-4" />Export</Button>
+            <Button variant="outline" className="rounded-[10px]"><Download className="mr-2 h-4 w-4" />Export</Button>
           </div>
         }
       />
@@ -91,11 +91,11 @@ export default function ReportsPage() {
       </div>
 
       <Tabs defaultValue="sales">
-        <TabsList className="rounded-xl">
-          <TabsTrigger value="sales" className="rounded-lg">Sales</TabsTrigger>
-          <TabsTrigger value="revenue" className="rounded-lg">Revenue</TabsTrigger>
-          <TabsTrigger value="products" className="rounded-lg">Products</TabsTrigger>
-          <TabsTrigger value="payments" className="rounded-lg">Payments</TabsTrigger>
+        <TabsList className="rounded-[10px]">
+          <TabsTrigger value="sales" className="rounded-[10px]">Sales</TabsTrigger>
+          <TabsTrigger value="revenue" className="rounded-[10px]">Revenue</TabsTrigger>
+          <TabsTrigger value="products" className="rounded-[10px]">Products</TabsTrigger>
+          <TabsTrigger value="payments" className="rounded-[10px]">Payments</TabsTrigger>
         </TabsList>
 
         <TabsContent value="sales" className="space-y-6">
@@ -138,8 +138,8 @@ export default function ReportsPage() {
                 <YAxis className="text-xs" />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="value" fill="url(#reportRevGrad1)" radius={[6, 6, 0, 0]} name="Revenue" />
-                <Bar dataKey="value2" fill="url(#reportRevGrad2)" radius={[6, 6, 0, 0]} name="Expenses" />
+                <Bar dataKey="value" fill="url(#reportRevGrad1)" radius={[10, 10, 0, 0]} name="Revenue" />
+                <Bar dataKey="value2" fill="url(#reportRevGrad2)" radius={[10, 10, 0, 0]} name="Expenses" />
               </BarChart>
             </ResponsiveContainer>
           </ChartCard>
@@ -154,7 +154,7 @@ export default function ReportsPage() {
                   <XAxis dataKey="name" className="text-xs" />
                   <YAxis className="text-xs" />
                   <Tooltip />
-                  <Bar dataKey="value" fill="#6366f1" radius={[6, 6, 0, 0]} />
+                  <Bar dataKey="value" fill="#6366f1" radius={[10, 10, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </ChartCard>
@@ -191,9 +191,9 @@ export default function ReportsPage() {
       </Tabs>
 
       <div className="flex justify-end gap-2">
-        <Button variant="outline" className="rounded-xl"><FileText className="mr-2 h-4 w-4" />Export PDF</Button>
-        <Button variant="outline" className="rounded-xl"><FileSpreadsheet className="mr-2 h-4 w-4" />Export Excel</Button>
-        <Button variant="outline" className="rounded-xl"><Download className="mr-2 h-4 w-4" />Export CSV</Button>
+        <Button variant="outline" className="rounded-[10px]"><FileText className="mr-2 h-4 w-4" />Export PDF</Button>
+        <Button variant="outline" className="rounded-[10px]"><FileSpreadsheet className="mr-2 h-4 w-4" />Export Excel</Button>
+        <Button variant="outline" className="rounded-[10px]"><Download className="mr-2 h-4 w-4" />Export CSV</Button>
       </div>
     </div>
   );

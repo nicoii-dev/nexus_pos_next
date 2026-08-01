@@ -2,26 +2,35 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormField } from "@/components/form-field";
 import { Eye, EyeOff, Loader2, Store } from "lucide-react";
 import { useLogin } from "@/services/auth";
+import { loginSchema, type LoginFormData } from "@/lib/validations/login";
 
 export default function LoginPage() {
   const router = useRouter();
   const login = useLogin();
   const [showPassword, setShowPassword] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
+  });
+
+  const onSubmit = async (data: LoginFormData) => {
     try {
-      const result = await login.mutateAsync({ email, password });
-      localStorage.setItem("token", result.token);
+      await login.mutateAsync(data);
       router.push("/dashboard");
     } catch {
       // error handled by form
@@ -42,10 +51,10 @@ export default function LoginPage() {
 
       <div className="relative z-10 w-full max-w-md animate-in-scale">
         <div className="mb-10 text-center">
-          <div className="relative mx-auto mb-6 flex h-18 w-18 items-center justify-center rounded-2xl bg-gradient-to-br from-primary via-primary/90 to-primary/70 text-primary-foreground shadow-glow-xl">
+          <div className="relative mx-auto mb-6 flex h-18 w-18 items-center justify-center rounded-[10px] bg-gradient-to-br from-primary via-primary/90 to-primary/70 text-primary-foreground shadow-glow-xl">
             <Store className="h-9 w-9" />
-            <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-white/25 to-transparent" />
-            <div className="absolute -inset-1 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 blur-xl -z-10" />
+            <div className="absolute inset-0 rounded-[10px] bg-gradient-to-br from-white/25 to-transparent" />
+            <div className="absolute -inset-1 rounded-[10px] bg-gradient-to-br from-primary/20 to-primary/5 blur-xl -z-10" />
           </div>
           <h1 className="text-4xl font-bold tracking-tight text-gradient">Nexus POS</h1>
           <p className="text-sm text-muted-foreground mt-2">Sign in to your management dashboard</p>
@@ -53,24 +62,20 @@ export default function LoginPage() {
 
         <Card className="shadow-elevated border-border/40 glass-card overflow-hidden">
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-          <form onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit(onSubmit)}>
             <CardHeader className="space-y-1 pb-4">
               <CardTitle className="text-xl">Welcome back</CardTitle>
               <CardDescription>Enter your credentials to continue</CardDescription>
             </CardHeader>
             <CardContent className="space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+              <FormField label="Email" error={errors.email?.message}>
                 <Input
-                  id="email"
                   type="email"
                   placeholder="admin@nexuspos.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="h-11 rounded-xl"
-                  required
+                  className="h-11 rounded-[10px]"
+                  {...register("email")}
                 />
-              </div>
+              </FormField>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password" className="text-sm font-medium">Password</Label>
@@ -83,10 +88,8 @@ export default function LoginPage() {
                     id="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="Enter your password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="h-11 rounded-xl pr-10"
-                    required
+                    className="h-11 rounded-[10px] pr-10"
+                    {...register("password")}
                   />
                   <button
                     type="button"
@@ -96,6 +99,7 @@ export default function LoginPage() {
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
+                {errors.password?.message && <p className="text-sm text-destructive">{errors.password.message}</p>}
               </div>
               <div className="flex items-center gap-2.5">
                 <input
@@ -109,7 +113,7 @@ export default function LoginPage() {
               </div>
             </CardContent>
             <CardFooter className="pt-2">
-                <Button type="submit" className="w-full h-11 rounded-xl font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:bg-primary/90 transition-all duration-300" disabled={login.isPending}>
+                <Button type="submit" className="w-full h-11 rounded-[10px] font-semibold shadow-lg shadow-primary/20 hover:shadow-primary/30 hover:bg-primary/90 transition-all duration-300" disabled={login.isPending}>
                   {login.isPending ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />

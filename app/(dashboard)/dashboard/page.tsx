@@ -63,8 +63,8 @@ export default function DashboardPage() {
           <p className="text-sm text-muted-foreground mt-1">Overview of your store performance</p>
         </div>
         <div className="flex gap-2">
-          <Button size="sm" className="rounded-xl shadow-lg shadow-primary/15 hover:shadow-primary/25 transition-shadow"><Plus className="mr-2 h-4 w-4" />New Sale</Button>
-          <Button size="sm" variant="outline" className="rounded-xl"><FileText className="mr-2 h-4 w-4" />View Reports</Button>
+          <Button size="sm" className="rounded-[10px] shadow-lg shadow-primary/15 hover:shadow-primary/25 transition-shadow"><Plus className="mr-2 h-4 w-4" />New Sale</Button>
+          <Button size="sm" variant="outline" className="rounded-[10px]"><FileText className="mr-2 h-4 w-4" />View Reports</Button>
         </div>
       </div>
 
@@ -117,8 +117,8 @@ export default function DashboardPage() {
               <XAxis dataKey="name" className="text-xs" />
               <YAxis className="text-xs" />
               <Tooltip />
-              <Bar dataKey="value" fill="url(#revenueGrad1)" radius={[6, 6, 0, 0]} />
-              <Bar dataKey="value2" fill="url(#revenueGrad2)" radius={[6, 6, 0, 0]} />
+              <Bar dataKey="value" fill="url(#revenueGrad1)" radius={[10, 10, 0, 0]} />
+              <Bar dataKey="value2" fill="url(#revenueGrad2)" radius={[10, 10, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -132,7 +132,7 @@ export default function DashboardPage() {
               <XAxis type="number" className="text-xs" />
               <YAxis type="category" dataKey="name" width={140} className="text-xs" />
               <Tooltip />
-              <Bar dataKey="value" fill="#6366f1" radius={[0, 6, 6, 0]} />
+              <Bar dataKey="value" fill="#6366f1" radius={[0, 10, 10, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -152,7 +152,7 @@ export default function DashboardPage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <div className="rounded-2xl border bg-card shadow-float overflow-hidden">
+        <div className="rounded-[10px] border bg-card shadow-float overflow-hidden">
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
           <div className="p-6 pb-4">
             <SectionHeader title="Recent Transactions" description="Latest sales" />
@@ -179,7 +179,7 @@ export default function DashboardPage() {
           </Table>
         </div>
 
-        <div className="rounded-2xl border bg-card shadow-float overflow-hidden">
+        <div className="rounded-[10px] border bg-card shadow-float overflow-hidden">
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-amber-500/20 to-transparent" />
           <div className="p-6 pb-4">
             <SectionHeader title="Low Stock Alert" description="Products needing attention" />

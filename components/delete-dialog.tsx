@@ -25,7 +25,7 @@ export function DeleteDialog({ open, onOpenChange, title, description, onConfirm
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md glass-card">
         <DialogHeader>
-          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-destructive/15 to-destructive/5">
+          <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[10px] bg-gradient-to-br from-destructive/15 to-destructive/5">
             <Trash2 className="h-6 w-6 text-destructive" />
           </div>
           <DialogTitle className="text-center text-lg">{title}</DialogTitle>

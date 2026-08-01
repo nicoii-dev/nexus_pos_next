@@ -34,7 +34,7 @@ export default function InventoryPage() {
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Inventory" description="Track stock movements and inventory status" action={<Button className="rounded-xl shadow-lg shadow-primary/15"><Plus className="mr-2 h-4 w-4" />Record Movement</Button>} />
+      <PageHeader title="Inventory" description="Track stock movements and inventory status" action={<Button className="rounded-[10px] shadow-lg shadow-primary/15"><Plus className="mr-2 h-4 w-4" />Record Movement</Button>} />
 
       <div className="grid gap-4 md:grid-cols-3">
         <StatCard title="Total Products" value={products.length} icon={<Package className="h-5 w-5 text-blue-500" />} />
@@ -43,20 +43,20 @@ export default function InventoryPage() {
       </div>
 
       <Tabs defaultValue="movements">
-        <TabsList className="rounded-xl">
-          <TabsTrigger value="movements" className="rounded-lg">Movements</TabsTrigger>
-          <TabsTrigger value="low-stock" className="rounded-lg">Low Stock ({lowStock.length})</TabsTrigger>
-          <TabsTrigger value="out-of-stock" className="rounded-lg">Out of Stock ({outOfStock.length})</TabsTrigger>
+        <TabsList className="rounded-[10px]">
+          <TabsTrigger value="movements" className="rounded-[10px]">Movements</TabsTrigger>
+          <TabsTrigger value="low-stock" className="rounded-[10px]">Low Stock ({lowStock.length})</TabsTrigger>
+          <TabsTrigger value="out-of-stock" className="rounded-[10px]">Out of Stock ({outOfStock.length})</TabsTrigger>
         </TabsList>
 
         <TabsContent value="movements" className="space-y-4">
           <div className="flex flex-wrap items-center gap-3">
             <div className="relative flex-1 min-w-[200px] max-w-sm">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input placeholder="Search products..." className="pl-9 rounded-xl" value={search} onChange={(e) => setSearch(e.target.value)} />
+              <Input placeholder="Search products..." className="pl-9 rounded-[10px]" value={search} onChange={(e) => setSearch(e.target.value)} />
             </div>
             <Select value={typeFilter} onValueChange={(v) => v !== null && setTypeFilter(v)}>
-              <SelectTrigger className="w-[180px] rounded-xl"><SelectValue placeholder="All Types" /></SelectTrigger>
+              <SelectTrigger className="w-[180px] rounded-[10px]"><SelectValue placeholder="All Types" /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Types</SelectItem>
                 <SelectItem value="stock_in">Stock In</SelectItem>
@@ -66,7 +66,7 @@ export default function InventoryPage() {
             </Select>
           </div>
 
-          <div className="rounded-2xl border bg-card shadow-float overflow-hidden">
+          <div className="rounded-[10px] border bg-card shadow-float overflow-hidden">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -109,9 +109,9 @@ export default function InventoryPage() {
 
         <TabsContent value="low-stock" className="space-y-4">
           {lowStock.length === 0 ? (
-            <div className="rounded-2xl border bg-card p-8 text-center text-muted-foreground">No low stock products</div>
+            <div className="rounded-[10px] border bg-card p-8 text-center text-muted-foreground">No low stock products</div>
           ) : (
-            <div className="rounded-2xl border bg-card shadow-float overflow-hidden">
+            <div className="rounded-[10px] border bg-card shadow-float overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>
@@ -140,9 +140,9 @@ export default function InventoryPage() {
 
         <TabsContent value="out-of-stock" className="space-y-4">
           {outOfStock.length === 0 ? (
-            <div className="rounded-2xl border bg-card p-8 text-center text-muted-foreground">No out of stock products</div>
+            <div className="rounded-[10px] border bg-card p-8 text-center text-muted-foreground">No out of stock products</div>
           ) : (
-            <div className="rounded-2xl border bg-card shadow-float overflow-hidden">
+            <div className="rounded-[10px] border bg-card shadow-float overflow-hidden">
               <Table>
                 <TableHeader>
                   <TableRow>

@@ -1,6 +1,7 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import type { User } from "@/types";
 import api, { supabase } from "@/lib/axios";
+import { clearBrowserData } from "@/lib/browser-cache";
 
 const login = async (
   email: string,
@@ -12,8 +13,12 @@ const login = async (
 };
 
 const logout = async (): Promise<void> => {
-  const { error } = await supabase.auth.signOut();
-  if (error) throw error;
+  try {
+    const { error } = await supabase.auth.signOut();
+    if (error) throw error;
+  } finally {
+    await clearBrowserData();
+  }
 };
 
 const getMe = async (): Promise<User> => {
@@ -26,9 +31,20 @@ export const useLogin = () =>
     mutationFn: ({ email, password }: { email: string; password: string }) => login(email, password),
   });
 
-export const useLogout = () =>
-  useMutation({
+export const useLogout = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
     mutationFn: () => logout(),
+    onSuccess: () => queryClient.clear(),
+  });
+};
+
+export const useGetCurrentUser = () =>
+  useQuery({
+    queryKey: ["auth", "me"],
+    queryFn: () => getMe(),
+    staleTime: 5 * 60 * 1000,
+    retry: 1,
   });
 
 export { login, logout, getMe };

@@ -1,31 +1,31 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import type { InventoryMovement } from "@/types";
+import type { Inventory } from "@/types";
 import api from "@/lib/axios";
 
-const MOVEMENTS_KEY = ["inventory_movements"];
+const INVENTORY_KEY = ["inventory"];
 
-const getInventoryMovements = async (): Promise<InventoryMovement[]> => {
-  const response = await api.get("/v1/inventory/movements");
+const getInventory = async (): Promise<Inventory[]> => {
+  const response = await api.get("/v1/inventory");
   return response.data;
 };
 
-const createInventoryMovement = async (data: Omit<InventoryMovement, "id">): Promise<InventoryMovement> => {
+const createInventory = async (data: Omit<Inventory, "id">): Promise<Inventory> => {
   const response = await api.post("/v1/inventory/movements", data);
   return response.data;
 };
 
-export const useGetInventoryMovements = () =>
+export const useGetInventory = () =>
   useQuery({
-    queryKey: MOVEMENTS_KEY,
-    queryFn: () => getInventoryMovements(),
+    queryKey: INVENTORY_KEY,
+    queryFn: () => getInventory(),
   });
 
-export const useCreateInventoryMovement = () => {
+export const useCreateInventory = () => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: createInventoryMovement,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: MOVEMENTS_KEY }),
+    mutationFn: createInventory,
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: INVENTORY_KEY }),
   });
 };
 
-export { getInventoryMovements, createInventoryMovement };
+export { getInventory, createInventory };

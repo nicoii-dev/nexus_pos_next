@@ -81,6 +81,8 @@ export default function SalesPage() {
                 <TableHead>Cashier</TableHead>
                 <TableHead className="text-right">Items</TableHead>
                 <TableHead className="text-right">Total</TableHead>
+                <TableHead className="text-right">Total Cost</TableHead>
+                <TableHead className="text-right">Profit</TableHead>
                 <TableHead>Payment</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead>Date</TableHead>
@@ -94,6 +96,8 @@ export default function SalesPage() {
                   <TableCell>{s.cashier}</TableCell>
                   <TableCell className="text-right">{s.items.length}</TableCell>
                   <TableCell className="text-right font-medium">{formatCurrency(s.total)}</TableCell>
+                  <TableCell className="text-right text-muted-foreground">{formatCurrency(s.totalCost)}</TableCell>
+                  <TableCell className="text-right font-medium text-emerald-600 dark:text-emerald-400">{formatCurrency(s.total - s.totalCost)}</TableCell>
                   <TableCell className="capitalize text-sm">{s.paymentMethod}</TableCell>
                   <TableCell><StatusBadge status={s.status} /></TableCell>
                   <TableCell className="text-sm text-muted-foreground">{formatDateTime(s.date)}</TableCell>

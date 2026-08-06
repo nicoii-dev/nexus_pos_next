@@ -1,8 +1,10 @@
+export type UserRole = "admin" | "manager" | "cashier";
+
 export interface User {
   id: string;
   name: string;
   email: string;
-  role: "admin" | "manager" | "cashier";
+  role: UserRole;
   avatar?: string;
   branchId: string;
 }
@@ -38,7 +40,7 @@ export interface Category {
   description?: string;
 }
 
-export interface InventoryMovement {
+export interface Inventory {
   id: string;
   productId: string;
   productName: string;
@@ -57,6 +59,7 @@ export interface Sale {
   subtotal: number;
   discount: number;
   total: number;
+  totalCost: number;
   paymentMethod: "cash" | "card" | "digital";
   status: "completed" | "pending" | "refunded";
   date: string;
@@ -68,6 +71,14 @@ export interface SaleItem {
   quantity: number;
   price: number;
   total: number;
+}
+
+export interface CreateSalePayload {
+  items: SaleItem[];
+  subtotal: number;
+  discount: number;
+  total: number;
+  paymentMethod: "cash" | "card" | "digital";
 }
 
 export interface DashboardStats {

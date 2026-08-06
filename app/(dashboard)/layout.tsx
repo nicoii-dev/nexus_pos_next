@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Sidebar } from "@/components/layout/sidebar";
 import { Navbar } from "@/components/layout/navbar";
+import { RoleGuard } from "@/components/role-guard";
 import { ToastContainer } from "@/components/toast-container";
 import { useToast } from "@/hooks/use-toast";
 
@@ -22,7 +23,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="lg:hidden">
           <Navbar onMenuClick={() => setMobileOpen(!mobileOpen)} />
         </div>
-        <main className="p-5 lg:p-8">{children}</main>
+        <main className="p-5 lg:p-8">
+          <RoleGuard>{children}</RoleGuard>
+        </main>
       </div>
       <ToastContainer toasts={toasts} onDismiss={dismiss} />
     </div>

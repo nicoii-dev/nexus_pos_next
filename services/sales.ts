@@ -1,5 +1,5 @@
-import { useQuery } from "@tanstack/react-query";
-import type { Sale } from "@/types";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import type { Sale, CreateSalePayload } from "@/types";
 import api from "@/lib/axios";
 
 const SALES_KEY = ["sales"];
@@ -11,6 +11,11 @@ const getSales = async (): Promise<Sale[]> => {
 
 const getSaleById = async (id: string): Promise<Sale> => {
   const response = await api.get(`/v1/sales/${id}`);
+  return response.data;
+};
+
+const createSale = async (data: CreateSalePayload): Promise<Sale> => {
+  const response = await api.post("/v1/sales/checkout", data);
   return response.data;
 };
 
@@ -27,4 +32,16 @@ export const useGetSaleById = (id: string) =>
     enabled: !!id,
   });
 
-export { getSales, getSaleById };
+export const useCreateSale = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: createSale,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: SALES_KEY });
+      queryClient.invalidateQueries({ queryKey: ["inventory"] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+    },
+  });
+};
+
+export { getSales, getSaleById, createSale };

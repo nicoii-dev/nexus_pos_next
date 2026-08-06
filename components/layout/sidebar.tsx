@@ -2,9 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useMemo } from "react";
 import { cn } from "@/lib/utils";
-import { MENU_ITEMS } from "@/constants";
-import { Building2, ChevronLeft, ChevronRight } from "lucide-react";
+import { filterMenuItems } from "@/constants";
+import { useGetCurrentUser } from "@/services/auth";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface SidebarProps {
   collapsed?: boolean;
@@ -13,6 +15,8 @@ interface SidebarProps {
 
 export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
   const pathname = usePathname();
+  const { data: user, isLoading } = useGetCurrentUser();
+  const menuItems = useMemo(() => (isLoading ? [] : filterMenuItems(user?.role)), [user?.role, isLoading]);
 
   return (
     <aside
@@ -37,7 +41,7 @@ export function Sidebar({ collapsed = false, onToggle }: SidebarProps) {
       </div>
 
       <nav className="relative flex-1 space-y-1 p-2.5">
-        {MENU_ITEMS.map((item) => {
+        {menuItems.map((item) => {
           const isActive = pathname === item.href || pathname.startsWith(item.href + "/");
           return (
             <Link

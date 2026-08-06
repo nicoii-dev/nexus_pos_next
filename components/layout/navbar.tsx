@@ -22,7 +22,7 @@ import {
 } from "@/components/ui/select";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { useLogout } from "@/services/auth";
+import { useLogout, useGetCurrentUser } from "@/services/auth";
 import { BRANCHES } from "@/components/layout/data";
 
 interface NavbarProps {
@@ -33,8 +33,15 @@ export function Navbar({ onMenuClick }: NavbarProps) {
   const { theme, setTheme } = useTheme();
   const router = useRouter();
   const logout = useLogout();
+  const { data: user } = useGetCurrentUser();
   const [mounted, setMounted] = useState(false);
   const [selectedBranch, setSelectedBranch] = useState("1");
+
+  const initials = user?.name
+    ? user.name.split(" ").map((part) => part.charAt(0)).slice(0, 2).join("").toUpperCase()
+    : "JA";
+  const displayName = user?.name ?? "John Admin";
+  const displayRole = user ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : "Administrator";
 
   useEffect(() => setMounted(true), []);
 
@@ -95,12 +102,12 @@ export function Navbar({ onMenuClick }: NavbarProps) {
           <DropdownMenuTrigger className="flex items-center gap-2.5 rounded-[10px] px-2.5 py-1.5 outline-none hover:bg-accent/70 transition-all duration-200 group">
             <div className="relative">
               <Avatar className="h-8 w-8 ring-2 ring-border/40 transition-all duration-200 group-hover:ring-primary/30">
-                <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-xs font-semibold">JA</AvatarFallback>
+                <AvatarFallback className="bg-gradient-to-br from-primary to-primary/70 text-primary-foreground text-xs font-semibold">{initials}</AvatarFallback>
               </Avatar>
             </div>
             <div className="hidden text-left md:block">
-              <p className="text-sm font-semibold leading-none">John Admin</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Administrator</p>
+              <p className="text-sm font-semibold leading-none">{displayName}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">{displayRole}</p>
             </div>
             <ChevronDown className="hidden h-4 w-4 text-muted-foreground md:block transition-transform duration-200 group-data-[state=open]:rotate-180" />
           </DropdownMenuTrigger>
@@ -108,7 +115,7 @@ export function Navbar({ onMenuClick }: NavbarProps) {
             <DropdownMenuGroup>
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuItem>Profile</DropdownMenuItem>
-              <DropdownMenuItem>Settings</DropdownMenuItem>
+              {user?.role !== "cashier" && <DropdownMenuItem>Settings</DropdownMenuItem>}
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuItem className="text-destructive" onClick={handleLogout}>Log out</DropdownMenuItem>

@@ -19,7 +19,8 @@ import { Badge } from "@/components/ui/badge";
 import { FormField } from "@/components/form-field";
 import { Plus, Search, Pencil, Trash2, Download, ChevronLeft, ChevronRight } from "lucide-react";
 import { useGetProducts, useCreateProduct, useUpdateProduct, useDeleteProduct } from "@/services/products";
-import { CATEGORIES, UNITS } from "@/constants";
+import { useGetCategories } from "@/services/categories";
+import { UNITS } from "@/constants";
 import { productSchema, type ProductFormData } from "@/lib/validations/product";
 import type { Product } from "@/types";
 
@@ -27,6 +28,7 @@ const PAGE_SIZE = 8;
 
 export default function ProductsPage() {
   const { data: products = [], isLoading } = useGetProducts();
+  const { data: categories = [], isLoading: isCategoriesLoading } = useGetCategories();
   const createProduct = useCreateProduct();
   const updateProduct = useUpdateProduct();
   const deleteProduct = useDeleteProduct();
@@ -116,8 +118,8 @@ export default function ProductsPage() {
     }
   };
 
-  if (isLoading) return <LoadingSkeleton type="table" />;
-
+  if (isLoading || isCategoriesLoading) return <LoadingSkeleton type="table" />;
+  
   return (
     <div className="space-y-6">
       <PageHeader title="Products" description="Manage your product catalog" action={<Button onClick={openAdd} className="rounded-[10px] shadow-lg shadow-primary/15 hover:shadow-primary/25 transition-shadow"><Plus className="mr-2 h-4 w-4" />Add Product</Button>} />
@@ -131,7 +133,7 @@ export default function ProductsPage() {
           <SelectTrigger className="w-[180px] rounded-[10px]"><SelectValue placeholder="All Categories" /></SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Categories</SelectItem>
-            {CATEGORIES.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+            {categories?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={(v) => { if (v !== null) { setStatusFilter(v); setPage(1); } }}>
@@ -173,7 +175,7 @@ export default function ProductsPage() {
                     </div>
                   </TableCell>
                   <TableCell className="text-muted-foreground text-sm font-mono">{p.sku}</TableCell>
-                  <TableCell><Badge variant="secondary" className="rounded-full">{CATEGORIES.find((c) => c.id === p.categoryId)?.name || "\u2014"}</Badge></TableCell>
+                  <TableCell><Badge variant="secondary" className="rounded-full">{categories.find((c) => c.id === p.categoryId)?.name || "\u2014"}</Badge></TableCell>
                   <TableCell className="text-right">{formatCurrency(p.buyingPrice)}</TableCell>
                   <TableCell className="text-right font-medium">{formatCurrency(p.sellingPrice)}</TableCell>
                   <TableCell className="text-right">{formatNumber(p.currentStock)} {p.unit}</TableCell>
@@ -224,9 +226,13 @@ export default function ProductsPage() {
                     control={control}
                     render={({ field }) => (
                       <Select value={field.value} onValueChange={field.onChange}>
-                        <SelectTrigger className="rounded-[10px]"><SelectValue placeholder="Select category" /></SelectTrigger>
+                        <SelectTrigger className="rounded-[10px]">
+                          <SelectValue placeholder="Select category">
+                            {categories?.find((c) => c.id === field.value)?.name}
+                          </SelectValue>
+                        </SelectTrigger>
                         <SelectContent>
-                          {CATEGORIES.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                          {categories?.map((c) => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
                         </SelectContent>
                       </Select>
                     )}

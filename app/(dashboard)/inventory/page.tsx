@@ -12,11 +12,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search, Plus, Package, AlertTriangle, XCircle, ArrowDownToLine, ArrowUpFromLine, Pencil } from "lucide-react";
-import { useGetInventoryMovements } from "@/services/inventory";
+import { useGetInventory } from "@/services/inventory";
 import { useGetProducts } from "@/services/products";
 
 export default function InventoryPage() {
-  const { data: movements = [], isLoading: movementsLoading } = useGetInventoryMovements();
+  const { data: movements = [], isLoading: movementsLoading } = useGetInventory();
   const { data: products = [], isLoading: productsLoading } = useGetProducts();
   const [search, setSearch] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");

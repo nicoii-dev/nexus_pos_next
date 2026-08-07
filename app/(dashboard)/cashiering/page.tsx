@@ -96,6 +96,7 @@ export default function CashieringPage() {
           quantity: l.quantity,
           price: l.price,
           total: l.price * l.quantity,
+          itemTotal: l.price * l.quantity,
         })),
         subtotal,
         discount: discountAmount,

@@ -51,6 +51,29 @@ export interface Inventory {
   performedBy: string;
 }
 
+export type PaymentType = "cash" | "card" | "digital";
+
+export interface PaymentTransfer {
+  id: string;
+  saleId: string;
+  salePaymentId: string | null;
+  fromPaymentType: PaymentType;
+  toPaymentType: PaymentType;
+  amount: number;
+  reason?: string;
+  createdBy?: string | null;
+  createdAt: string;
+}
+
+export interface CreatePaymentTransferPayload {
+  saleId: string;
+  salePaymentId?: string;
+  fromPaymentType: PaymentType;
+  toPaymentType: PaymentType;
+  amount: number;
+  reason?: string;
+}
+
 export interface Sale {
   id: string;
   transactionNumber: string;
@@ -60,9 +83,10 @@ export interface Sale {
   discount: number;
   total: number;
   totalCost: number;
-  paymentMethod: "cash" | "card" | "digital";
+  paymentMethod: PaymentType;
   status: "completed" | "pending" | "refunded";
   date: string;
+  transfers?: PaymentTransfer[];
 }
 
 export interface SaleItem {
@@ -71,6 +95,7 @@ export interface SaleItem {
   quantity: number;
   price: number;
   total: number;
+  itemTotal: number;
 }
 
 export interface CreateSalePayload {

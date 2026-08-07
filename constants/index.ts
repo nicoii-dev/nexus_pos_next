@@ -5,7 +5,6 @@ import {
   ShoppingCart,
   BarChart3,
   Building2,
-  Settings,
   HandCoins,
   type LucideIcon,
 } from "lucide-react";
@@ -26,7 +25,6 @@ export const MENU_ITEMS: MenuItem[] = [
   { title: "Sales", href: "/sales", icon: ShoppingCart, roles: ["admin", "manager"] },
   { title: "Reports", href: "/reports", icon: BarChart3, roles: ["admin", "manager"] },
   { title: "Branches", href: "/branches", icon: Building2, roles: ["admin", "manager"] },
-  { title: "Settings", href: "/settings", icon: Settings, roles: ["admin", "manager"] },
 ];
 
 const CASHIER_DEFAULT_ROUTE = "/cashiering";

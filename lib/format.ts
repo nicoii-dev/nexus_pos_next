@@ -9,7 +9,7 @@ export function formatCurrency(amount: number, currency = "PHP"): string {
     JPY: "¥",
   };
   const symbol = symbols[currency] || "₱";
-  return `${symbol}${amount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  return `${symbol}${amount?.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
 
 export function formatDate(dateString: string, fmt = "MMM dd, yyyy"): string {

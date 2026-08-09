@@ -51,7 +51,7 @@ export interface Inventory {
   performedBy: string;
 }
 
-export type PaymentType = "cash" | "card" | "digital";
+export type PaymentType = "cash" | "card" | "digital" | "credit";
 
 export interface PaymentTransfer {
   id: string;
@@ -78,6 +78,7 @@ export interface Sale {
   id: string;
   transactionNumber: string;
   cashier: string;
+  customer: Customer | null;
   items: SaleItem[];
   subtotal: number;
   discount: number;
@@ -103,7 +104,28 @@ export interface CreateSalePayload {
   subtotal: number;
   discount: number;
   total: number;
-  paymentMethod: "cash" | "card" | "digital";
+  paymentMethod: PaymentType;
+  customerId?: string;
+}
+
+export interface Customer {
+  id: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  phone: string | null;
+  address: string | null;
+  remarks: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateCustomerPayload {
+  firstName: string;
+  lastName: string;
+  phone?: string;
+  address?: string;
+  remarks?: string;
 }
 
 export interface DashboardStats {

@@ -8,6 +8,7 @@ export interface PaymentSummary {
   cash: number;
   card: number;
   digital: number;
+  credit: number;
 }
 
 export interface SalesResponse {
@@ -15,7 +16,7 @@ export interface SalesResponse {
   paymentSummary: PaymentSummary;
 }
 
-const EMPTY_PAYMENT_SUMMARY: PaymentSummary = { cash: 0, card: 0, digital: 0 };
+const EMPTY_PAYMENT_SUMMARY: PaymentSummary = { cash: 0, card: 0, digital: 0, credit: 0 };
 
 const getSalesResponse = async (): Promise<SalesResponse> => {
   const response = await api.get("/v1/sales");

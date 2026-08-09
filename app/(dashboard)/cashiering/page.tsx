@@ -12,11 +12,14 @@ import { formatCurrency } from "@/lib/format";
 import { useGetProducts } from "@/services/products";
 import { useGetCategories } from "@/services/categories";
 import { useCreateSale } from "@/services/sales";
+import { useGetCustomers } from "@/services/customers";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { DenominationCalculator } from "@/components/denomination-calculator";
-import { Plus, Minus, Trash2, Search, ShoppingCart, Banknote, CreditCard, Smartphone, Receipt } from "lucide-react";
-import type { Product } from "@/types";
+import { FormField } from "@/components/form-field";
+import { CustomerFormDialog } from "@/components/customer-form-dialog";
+import { Plus, Minus, Trash2, Search, ShoppingCart, Banknote, CreditCard, Smartphone, BookUser, UserPlus, Receipt } from "lucide-react";
+import type { PaymentType, Product } from "@/types";
 
 interface CartLine {
   productId: string;
@@ -30,11 +33,13 @@ const PAYMENT_OPTIONS = [
   { value: "cash", label: "Cash", icon: Banknote },
   { value: "card", label: "Card", icon: CreditCard },
   { value: "digital", label: "Digital", icon: Smartphone },
+  { value: "credit", label: "Credit", icon: BookUser },
 ] as const;
 
 export default function CashieringPage() {
   const { data: products = [], isLoading } = useGetProducts();
   const { data: categories = [] } = useGetCategories();
+  const { data: customers = [] } = useGetCustomers();
   const createSale = useCreateSale();
   const { toast } = useToast();
 
@@ -42,8 +47,10 @@ export default function CashieringPage() {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [cart, setCart] = useState<CartLine[]>([]);
   const [discount, setDiscount] = useState(0);
-  const [paymentMethod, setPaymentMethod] = useState<"cash" | "card" | "digital">("cash");
+  const [paymentMethod, setPaymentMethod] = useState<PaymentType>("cash");
+  const [customerId, setCustomerId] = useState("");
   const [tendered, setTendered] = useState<number | null>(null);
+  const [customerDialogOpen, setCustomerDialogOpen] = useState(false);
 
   const filteredProducts = useMemo(() => {
     const query = search.trim().toLowerCase();
@@ -60,6 +67,7 @@ export default function CashieringPage() {
   const total = subtotal - discountAmount;
   const cashChange = tendered !== null ? Math.round((tendered - total) * 100) / 100 : null;
   const itemCount = cart.reduce((sum, l) => sum + l.quantity, 0);
+  const selectedCustomer = customers.find((c) => c.id === customerId) ?? null;
 
   const addToCart = (p: Product) => {
     setCart((prev) => {
@@ -88,6 +96,10 @@ export default function CashieringPage() {
 
   const handleCheckout = async () => {
     if (cart.length === 0) return;
+    if (paymentMethod === "credit" && !customerId) {
+      toast({ title: "Customer required", description: "Please select or create a customer for a credit sale.", variant: "destructive" });
+      return;
+    }
     try {
       await createSale.mutateAsync({
         items: cart.map((l) => ({
@@ -102,12 +114,14 @@ export default function CashieringPage() {
         discount: discountAmount,
         total,
         paymentMethod,
+        ...(paymentMethod === "credit" ? { customerId } : {}),
       });
       setCart([]);
       setDiscount(0);
       setPaymentMethod("cash");
+      setCustomerId("");
       setTendered(null);
-      toast({ title: "Sale completed", description: `${itemCount} item(s) recorded. ${formatCurrency(total)} collected via ${paymentMethod}.` });
+      toast({ title: "Sale completed", description: `${itemCount} item(s) recorded. ${formatCurrency(total)} via ${paymentMethod}.` });
     } catch {
       toast({ title: "Checkout failed", description: "Unable to record the sale. Please try again.", variant: "destructive" });
     }
@@ -292,13 +306,57 @@ export default function CashieringPage() {
               </div>
             )}
 
-            <Button className="w-full h-10 text-sm rounded-[10px] shadow-lg shadow-primary/15" disabled={cart.length === 0 || createSale.isPending} onClick={handleCheckout}>
+            {paymentMethod === "credit" && (
+              <div className="space-y-2">
+                <FormField label="Customer">
+                  <div className="flex gap-2">
+                    <Select value={customerId} onValueChange={(v) => { if (v !== null) setCustomerId(v); }}>
+                      <SelectTrigger className="flex-1 rounded-[10px]">
+                        {selectedCustomer ? (
+                          <span className="line-clamp-1">{selectedCustomer.fullName}</span>
+                        ) : (
+                          <span className="text-muted-foreground">Select customer</span>
+                        )}
+                      </SelectTrigger>
+                      <SelectContent>
+                        {customers.map((c) => (
+                          <SelectItem key={c.id} value={c.id}>{c.fullName}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="icon"
+                      className="h-9 w-9 shrink-0 rounded-[10px]"
+                      onClick={() => setCustomerDialogOpen(true)}
+                      title="New customer"
+                    >
+                      <UserPlus className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </FormField>
+                {customers.length === 0 && (
+                  <p className="text-xs text-muted-foreground">
+                    No customers yet. Click <span className="font-medium">+</span> to create one.
+                  </p>
+                )}
+              </div>
+            )}
+
+            <Button className="w-full h-10 text-sm rounded-[10px] shadow-lg shadow-primary/15" disabled={cart.length === 0 || createSale.isPending || (paymentMethod === "credit" && !customerId)} onClick={handleCheckout}>
               <Receipt className="mr-2 h-4 w-4" />
               {createSale.isPending ? "Recording sale..." : `Charge ${formatCurrency(total)}`}
             </Button>
           </div>
         </div>
       </div>
+
+      <CustomerFormDialog
+        open={customerDialogOpen}
+        onOpenChange={setCustomerDialogOpen}
+        onSuccess={(customer) => setCustomerId(customer.id)}
+      />
     </div>
   );
 }

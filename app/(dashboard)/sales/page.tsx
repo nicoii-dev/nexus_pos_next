@@ -14,7 +14,8 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { Search, Eye, Printer, RotateCcw, ChevronLeft, ChevronRight, Download, ArrowLeftRight, X, Banknote, CreditCard, Smartphone } from "lucide-react";
+import { Search, Eye, Printer, RotateCcw, ChevronLeft, ChevronRight, Download, ArrowLeftRight, X, Banknote, CreditCard, Smartphone, BookUser } from "lucide-react";
+import { cn } from "@/lib/utils";
 import { useGetSales, useGetSalesSummary } from "@/services/sales";
 import type { Sale } from "@/types";
 
@@ -24,6 +25,7 @@ const PAYMENT_SUMMARY_OPTIONS = [
   { value: "cash", label: "Cash", icon: Banknote },
   { value: "card", label: "Card", icon: CreditCard },
   { value: "digital", label: "Digital", icon: Smartphone },
+  { value: "credit", label: "Credit", icon: BookUser },
 ] as const;
 
 export default function SalesPage() {
@@ -40,7 +42,7 @@ export default function SalesPage() {
 
   const filtered = useMemo(() => {
     return sales.filter((s) => {
-      if (search && !s.transactionNumber.toLowerCase().includes(search.toLowerCase()) && !s.cashier.toLowerCase().includes(search.toLowerCase())) return false;
+      if (search && !s.transactionNumber.toLowerCase().includes(search.toLowerCase()) && !s.cashier.toLowerCase().includes(search.toLowerCase()) && !(s.customer?.fullName ?? "").toLowerCase().includes(search.toLowerCase())) return false;
       if (statusFilter !== "all" && s.status !== statusFilter) return false;
       if (paymentFilter !== "all" && s.paymentMethod !== paymentFilter) return false;
       return true;
@@ -135,12 +137,13 @@ export default function SalesPage() {
             <SelectItem value="cash">Cash</SelectItem>
             <SelectItem value="card">Card</SelectItem>
             <SelectItem value="digital">Digital</SelectItem>
+            <SelectItem value="credit">Credit</SelectItem>
           </SelectContent>
         </Select>
         <Button variant="outline" size="sm" className="rounded-[10px]"><Download className="mr-2 h-4 w-4" />Export</Button>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {PAYMENT_SUMMARY_OPTIONS.map((option) => {
           const Icon = option.icon;
           return (
@@ -218,12 +221,19 @@ export default function SalesPage() {
                     />
                   </TableCell>
                   <TableCell className="font-mono text-sm font-medium">{s.transactionNumber}</TableCell>
-                  <TableCell>{s.cashier}</TableCell>
+                  <TableCell>
+                    <div>
+                      <p>{s.cashier}</p>
+                      {s.customer && <p className="text-xs text-muted-foreground">{s.customer.fullName}</p>}
+                    </div>
+                  </TableCell>
                   <TableCell className="text-right">{s.items.length}</TableCell>
                   <TableCell className="text-right font-medium">{formatCurrency(s.total)}</TableCell>
                   <TableCell className="text-right text-muted-foreground">{formatCurrency(s.totalCost)}</TableCell>
                   <TableCell className="text-right font-medium text-emerald-600 dark:text-emerald-400">{formatCurrency(s.total - s.totalCost)}</TableCell>
-                  <TableCell className="capitalize text-sm">{s.paymentMethod}</TableCell>
+                  <TableCell>
+                    <span className={cn("capitalize text-sm", s.paymentMethod === "credit" && "font-medium text-primary")}>{s.paymentMethod}</span>
+                  </TableCell>
                   <TableCell>
                     {s.transfers && s.transfers.length > 0 ? (
                       <div className="flex flex-col items-start gap-1">
@@ -286,6 +296,7 @@ export default function SalesPage() {
                 <div><span className="text-muted-foreground">Payment</span><p className="capitalize">{viewingSale.paymentMethod}</p></div>
                 <div><span className="text-muted-foreground">Status</span><div><StatusBadge status={viewingSale.status} /></div></div>
                 <div><span className="text-muted-foreground">Date</span><p>{formatDateTime(viewingSale.date)}</p></div>
+                {viewingSale.customer && <div><span className="text-muted-foreground">Customer</span><p className="font-medium">{viewingSale.customer.fullName}</p></div>}
               </div>
               <Separator />
               <div>

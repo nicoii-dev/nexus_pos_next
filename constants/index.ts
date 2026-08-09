@@ -46,7 +46,7 @@ export function getDefaultRoute(role: UserRole): string {
 
 export const UNITS = ["pcs", "kg", "g", "ml", "L", "box", "pack", "dozen"];
 
-export const PAYMENT_METHODS = ["cash", "card", "digital"] as const;
+export const PAYMENT_METHODS = ["cash", "card", "digital", "credit"] as const;
 
 export const CURRENCIES = [
   { code: "PHP", symbol: "₱", name: "Philippine Peso" },

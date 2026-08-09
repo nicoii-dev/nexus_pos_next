@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Banknote, CreditCard, Smartphone, ArrowLeftRight, Loader2 } from "lucide-react";
+import { Banknote, CreditCard, Smartphone, BookUser, ArrowLeftRight, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -18,6 +18,7 @@ const PAYMENT_OPTIONS = [
   { value: "cash", label: "Cash", icon: Banknote },
   { value: "card", label: "Card", icon: CreditCard },
   { value: "digital", label: "Digital", icon: Smartphone },
+  { value: "credit", label: "Credit", icon: BookUser },
 ] as const;
 
 function getErrorMessage(error: unknown): string {
@@ -151,7 +152,9 @@ export function PaymentTransferDialog({ open, onOpenChange, sales, onSuccess }: 
                             ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
                             : s.paymentMethod === "card"
                               ? "bg-sky-500/10 text-sky-600 dark:text-sky-400"
-                              : "bg-violet-500/10 text-violet-600 dark:text-violet-400"
+                              : s.paymentMethod === "credit"
+                                ? "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+                                : "bg-violet-500/10 text-violet-600 dark:text-violet-400"
                         )}
                       >
                         {s.paymentMethod}

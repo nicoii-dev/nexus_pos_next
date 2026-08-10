@@ -197,6 +197,7 @@ export default function SalesPage() {
                 </TableHead>
                 <TableHead>Transaction #</TableHead>
                 <TableHead>Cashier</TableHead>
+                <TableHead>Customer</TableHead>
                 <TableHead className="text-right">Items</TableHead>
                 <TableHead className="text-right">Total</TableHead>
                 <TableHead className="text-right">Total Cost</TableHead>
@@ -221,11 +222,13 @@ export default function SalesPage() {
                     />
                   </TableCell>
                   <TableCell className="font-mono text-sm font-medium">{s.transactionNumber}</TableCell>
+                  <TableCell>{s.cashier}</TableCell>
                   <TableCell>
-                    <div>
-                      <p>{s.cashier}</p>
-                      {s.customer && <p className="text-xs text-muted-foreground">{s.customer.fullName}</p>}
-                    </div>
+                    {s.customer ? (
+                      <span className="text-sm">{s.customer.fullName}</span>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">—</span>
+                    )}
                   </TableCell>
                   <TableCell className="text-right">{s.items.length}</TableCell>
                   <TableCell className="text-right font-medium">{formatCurrency(s.total)}</TableCell>
